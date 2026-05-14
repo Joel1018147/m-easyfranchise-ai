@@ -256,7 +256,14 @@ app.get('/api/auth/google/callback', async (req, res) => {
 
     const token = makeToken(user.id);
     // Redirect to app with token
-    res.redirect(`/app.html?token=${token}`);
+    // Set token as httpOnly cookie and redirect cleanly
+    res.cookie('mef_oauth_token', token, {
+      maxAge: 60000, // 1 minute to pick up
+      httpOnly: false, // needs to be readable by JS
+      secure: IS_PROD,
+      sameSite: 'lax',
+    });
+    res.redirect('/app.html');
   } catch (err) {
     console.error('Google OAuth error:', err.message);
     res.redirect('/login.html?error=oauth_failed');

@@ -2050,17 +2050,17 @@ function doLogout() {
 }
 
 async function init() {
-  // Handle Google OAuth redirect with token in URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlToken = urlParams.get('token');
-  if (urlToken) {
-    localStorage.setItem('mef_token', urlToken);
-    TOKEN = urlToken;
-    // Clean URL immediately
-    window.history.replaceState({}, document.title, '/app.html');
+  // Handle Google OAuth redirect via cookie
+  const oauthToken = document.cookie.split(';').map(c=>c.trim())
+    .find(c=>c.startsWith('mef_oauth_token='))?.split('=')[1];
+  if (oauthToken) {
+    // Clear cookie
+    document.cookie = 'mef_oauth_token=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+    localStorage.setItem('mef_token', oauthToken);
+    TOKEN = oauthToken;
     // Fetch user from API
     try {
-      const r = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + urlToken } });
+      const r = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + oauthToken } });
       if (r.ok) {
         USER = await r.json();
         localStorage.setItem('mef_user', JSON.stringify(USER));
