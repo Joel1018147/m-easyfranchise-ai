@@ -321,6 +321,51 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'Plus 
 .empty h3{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px;}
 .empty p{font-size:13px;color:var(--slate);max-width:280px;line-height:1.5;}
 
+/* ── PROFILE POPUP ── */
+.profile-popup{
+  position:absolute;bottom:60px;left:14px;right:14px;
+  background:#1A2D42;border:1px solid rgba(255,255,255,0.12);
+  border-radius:var(--r-lg);padding:14px;z-index:200;
+  box-shadow:0 -8px 32px rgba(0,0,0,0.4);
+  display:none;
+}
+.profile-popup.show{display:block;}
+.pp-header{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:10px;}
+.pp-avatar{width:36px;height:36px;border-radius:50%;background:var(--green-bg);display:flex;align-items:center;justify-content:center;color:var(--green2);font-size:14px;font-weight:700;flex-shrink:0;}
+.pp-name{color:white;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pp-email{color:rgba(255,255,255,0.4);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pp-section{font-size:10px;color:rgba(255,255,255,0.25);letter-spacing:.06em;text-transform:uppercase;font-weight:700;margin:10px 0 6px;}
+.pp-option{
+  display:flex;align-items:center;gap:8px;padding:7px 8px;
+  border-radius:var(--r-sm);cursor:pointer;transition:background .15s;
+  color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;
+  border:none;background:transparent;width:100%;text-align:left;
+}
+.pp-option:hover{background:rgba(255,255,255,0.07);color:white;}
+.pp-option.active{color:var(--green2);}
+.pp-option .pp-icon{font-size:14px;width:18px;text-align:center;}
+.pp-toggle{
+  margin-left:auto;width:32px;height:18px;border-radius:9px;
+  background:rgba(255,255,255,0.15);position:relative;transition:background .2s;flex-shrink:0;
+}
+.pp-toggle.on{background:var(--green);}
+.pp-toggle::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:14px;height:14px;border-radius:50%;background:white;
+  transition:transform .2s;
+}
+.pp-toggle.on::after{transform:translateX(14px);}
+.pp-divider{height:1px;background:rgba(255,255,255,0.08);margin:8px 0;}
+.pp-logout{color:rgba(255,255,255,0.4);}
+.pp-logout:hover{color:#ff6b6b;background:rgba(192,57,43,0.15);}
+.lang-btn{
+  flex:1;padding:5px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);
+  background:transparent;color:rgba(255,255,255,0.5);font-size:11px;font-weight:600;
+  cursor:pointer;transition:all .15s;font-family:inherit;
+}
+.lang-btn:hover{background:rgba(255,255,255,0.07);color:white;}
+.lang-btn.active{background:var(--green-bg);border-color:var(--green);color:var(--green2);}
+
 /* ── TOAST ── */
 .toast{
   position:fixed;bottom:24px;right:24px;z-index:9999;
@@ -544,11 +589,42 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'Plus 
       </button>
     </nav>
 
-    <div class="sb-footer">
-      <div class="user-row">
+    <div class="sb-footer" style="position:relative;">
+      <!-- Profile Popup -->
+      <div class="profile-popup" id="profile-popup">
+        <div class="pp-header">
+          <div class="pp-avatar" id="pp-av">U</div>
+          <div style="flex:1;min-width:0;">
+            <div class="pp-name" id="pp-name">User</div>
+            <div class="pp-email" id="pp-email">user@email.com</div>
+          </div>
+        </div>
+
+        <div class="pp-section">Appearance</div>
+        <button class="pp-option" onclick="toggleTheme()">
+          <span class="pp-icon">🌙</span>
+          <span id="pp-theme-label">Dark Mode</span>
+          <div class="pp-toggle" id="pp-theme-toggle"></div>
+        </button>
+
+        <div class="pp-section">Language</div>
+        <div style="display:flex;gap:6px;">
+          <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+          <button class="lang-btn" id="lang-ms" onclick="setLang('ms')">BM</button>
+          <button class="lang-btn" id="lang-zh" onclick="setLang('zh')">中文</button>
+        </div>
+
+        <div class="pp-divider"></div>
+        <button class="pp-option pp-logout" onclick="doLogout()">
+          <span class="pp-icon">⎋</span> Sign Out
+        </button>
+      </div>
+
+      <!-- User Row (clickable) -->
+      <div class="user-row" onclick="toggleProfilePopup()" style="cursor:pointer;padding:6px 8px;border-radius:var(--r-sm);transition:background .15s;" onmouseenter="this.style.background='rgba(255,255,255,0.06)'" onmouseleave="this.style.background='transparent'">
         <div class="user-avatar" id="user-av">U</div>
         <div class="user-name" id="user-nm">Loading...</div>
-        <button class="logout-btn" onclick="doLogout()" title="Logout">⎋</button>
+        <span style="color:rgba(255,255,255,0.3);font-size:11px;margin-left:auto;">⌃</span>
       </div>
     </div>
   </aside>
@@ -558,9 +634,7 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'Plus 
     <div class="topbar">
       <div class="topbar-title" id="topbar-title">Dashboard</div>
       <div class="topbar-sub" id="topbar-sub"></div>
-      <div class="tb-right">
-        <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
-      </div>
+      <div class="tb-right"></div>
     </div>
 
     <div class="page-body">
@@ -2032,12 +2106,140 @@ async function sendChat() {
 // ═══════════════════════════════════════════════════════════════
 //  THEME
 // ═══════════════════════════════════════════════════════════════
+// ── PROFILE POPUP ─────────────────────────────────────────────
+function toggleProfilePopup() {
+  const popup = document.getElementById('profile-popup');
+  popup.classList.toggle('show');
+  // Close when clicking outside
+  if (popup.classList.contains('show')) {
+    setTimeout(() => {
+      document.addEventListener('click', closeProfileOnOutside);
+    }, 10);
+  }
+}
+function closeProfileOnOutside(e) {
+  const popup = document.getElementById('profile-popup');
+  const footer = document.querySelector('.sb-footer');
+  if (!footer.contains(e.target)) {
+    popup.classList.remove('show');
+    document.removeEventListener('click', closeProfileOnOutside);
+  }
+}
+
 function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.dataset.theme === 'dark';
   html.dataset.theme = isDark ? 'light' : 'dark';
-  document.querySelector('.theme-btn').textContent = isDark ? '🌙' : '☀️';
   localStorage.setItem('mef_theme', html.dataset.theme);
+  updateThemeUI();
+}
+function updateThemeUI() {
+  const isDark = document.documentElement.dataset.theme === 'dark';
+  const toggle = document.getElementById('pp-theme-toggle');
+  const label  = document.getElementById('pp-theme-label');
+  if (toggle) toggle.classList.toggle('on', isDark);
+  if (label)  label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+}
+
+// ── LANGUAGE ───────────────────────────────────────────────────
+const LANGS = {
+  en: {
+    dashboard:'Dashboard', brands:'My Brands', units:'Franchise Units',
+    franchisees:'Franchisees', applications:'Applications', royalties:'Royalties',
+    compliance:'Compliance Audits', tickets:'Support Tickets', training:'Training',
+    'ai-chat':'AI Assistant', welcome:'Welcome back 👋',
+    selectBrand:'Select a brand to see your franchise overview',
+    noBrand:'No brand selected', noBrandDesc:'Create your first franchise brand or select one from the sidebar to get started.',
+    createBrand:'Create Brand', newBrand:'+ New Brand', selectBrandLabel:'Select a brand',
+    activeBrand:'ACTIVE BRAND', overview:'Overview', management:'MANAGEMENT',
+    finance:'FINANCE', support:'SUPPORT', ai:'AI',
+    signOut:'Sign Out', darkMode:'Dark Mode', lightMode:'Light Mode', language:'Language',
+  },
+  ms: {
+    dashboard:'Papan Pemuka', brands:'Jenama Saya', units:'Unit Francais',
+    franchisees:'Pemegang Francais', applications:'Permohonan', royalties:'Royalti',
+    compliance:'Audit Pematuhan', tickets:'Tiket Sokongan', training:'Latihan',
+    'ai-chat':'Pembantu AI', welcome:'Selamat kembali 👋',
+    selectBrand:'Pilih jenama untuk melihat gambaran keseluruhan francais anda',
+    noBrand:'Tiada jenama dipilih', noBrandDesc:'Cipta jenama francais pertama anda atau pilih satu dari bar sisi untuk memulakan.',
+    createBrand:'Cipta Jenama', newBrand:'+ Jenama Baharu', selectBrandLabel:'Pilih jenama',
+    activeBrand:'JENAMA AKTIF', overview:'Gambaran Keseluruhan', management:'PENGURUSAN',
+    finance:'KEWANGAN', support:'SOKONGAN', ai:'AI',
+    signOut:'Log Keluar', darkMode:'Mod Gelap', lightMode:'Mod Cerah', language:'Bahasa',
+  },
+  zh: {
+    dashboard:'仪表板', brands:'我的品牌', units:'加盟单位',
+    franchisees:'加盟商', applications:'申请', royalties:'特许权使用费',
+    compliance:'合规审计', tickets:'支持工单', training:'培训',
+    'ai-chat':'AI助手', welcome:'欢迎回来 👋',
+    selectBrand:'选择品牌以查看您的加盟概览',
+    noBrand:'未选择品牌', noBrandDesc:'创建您的第一个加盟品牌，或从侧边栏选择一个以开始。',
+    createBrand:'创建品牌', newBrand:'+ 新品牌', selectBrandLabel:'选择品牌',
+    activeBrand:'当前品牌', overview:'概览', management:'管理',
+    finance:'财务', support:'支持', ai:'AI',
+    signOut:'退出登录', darkMode:'深色模式', lightMode:'浅色模式', language:'语言',
+  }
+};
+let currentLang = localStorage.getItem('mef_lang') || 'en';
+
+function t(key) { return LANGS[currentLang]?.[key] || LANGS.en[key] || key; }
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('mef_lang', lang);
+  // Update lang buttons
+  ['en','ms','zh'].forEach(l => {
+    const btn = document.getElementById('lang-' + l);
+    if (btn) btn.classList.toggle('active', l === lang);
+  });
+  applyTranslations();
+}
+
+function applyTranslations() {
+  const l = currentLang;
+  // Nav items
+  const navMap = {
+    dashboard: 'dashboard', brands: 'brands', units: 'units',
+    franchisees: 'franchisees', applications: 'applications',
+    royalties: 'royalties', compliance: 'compliance',
+    tickets: 'tickets', training: 'training', 'ai-chat': 'ai-chat'
+  };
+  document.querySelectorAll('.sb-item').forEach(btn => {
+    const onclick = btn.getAttribute('onclick') || '';
+    const match = onclick.match(/goTo\('([^']+)'\)/);
+    if (match) {
+      const key = match[1];
+      const icon = btn.querySelector('.sb-icon');
+      if (icon) btn.childNodes[btn.childNodes.length-1].textContent = ' ' + t(key);
+    }
+  });
+  // Section labels
+  const sections = document.querySelectorAll('.sb-section');
+  const sectionKeys = ['overview','management','finance','support','ai'];
+  sections.forEach((s, i) => { if (sectionKeys[i]) s.textContent = t(sectionKeys[i]).toUpperCase(); });
+  // Brand selector
+  const brandLabel = document.getElementById('sb-brand-name');
+  if (brandLabel && brandLabel.textContent === LANGS['en'].selectBrandLabel ||
+      brandLabel.textContent === LANGS['ms'].selectBrandLabel ||
+      brandLabel.textContent === LANGS['zh'].selectBrandLabel) {
+    brandLabel.textContent = t('selectBrandLabel');
+  }
+  // Active brand label
+  const activeBrandEl = document.querySelector('.brand-sel-label');
+  if (activeBrandEl) activeBrandEl.textContent = t('activeBrand');
+  // Sign out
+  const signOutBtn = document.querySelector('.pp-logout');
+  if (signOutBtn) signOutBtn.innerHTML = '<span class="pp-icon">⎋</span> ' + t('signOut');
+  // Theme label
+  const isDark = document.documentElement.dataset.theme === 'dark';
+  const themeLabel = document.getElementById('pp-theme-label');
+  if (themeLabel) themeLabel.textContent = isDark ? t('darkMode') : t('lightMode');
+  // Topbar
+  const topbarTitle = document.getElementById('topbar-title');
+  if (topbarTitle) {
+    const currentView = document.querySelector('.view.active')?.id?.replace('view-','');
+    if (currentView) topbarTitle.textContent = t(currentView);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2072,14 +2274,30 @@ async function init() {
   const savedTheme = localStorage.getItem('mef_theme');
   if (savedTheme) {
     document.documentElement.dataset.theme = savedTheme;
-    document.querySelector('.theme-btn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
   }
+  updateThemeUI();
+
+  // Restore language
+  currentLang = localStorage.getItem('mef_lang') || 'en';
+  ['en','ms','zh'].forEach(l => {
+    const btn = document.getElementById('lang-' + l);
+    if (btn) btn.classList.toggle('active', l === currentLang);
+  });
+  applyTranslations();
 
   // Set user info
   // Set user info immediately
   if (USER.name) {
     document.getElementById('user-nm').textContent = USER.name;
     document.getElementById('user-av').textContent = USER.name[0].toUpperCase();
+    document.getElementById('pp-name').textContent = USER.name;
+    document.getElementById('pp-av').textContent = USER.name[0].toUpperCase();
+    if (USER.email) document.getElementById('pp-email').textContent = USER.email;
+    if (USER.avatar) {
+      const av = document.getElementById('pp-av');
+      av.style.background = 'none';
+      av.innerHTML = '<img src="' + USER.avatar + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">';
+    }
   } else {
     // Fallback: fetch from API
     try {
