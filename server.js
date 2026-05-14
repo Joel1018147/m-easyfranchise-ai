@@ -256,7 +256,7 @@ app.get('/api/auth/google/callback', async (req, res) => {
 
     const token = makeToken(user.id);
     // Redirect to app with token
-    res.redirect(`/app.html?token=${token}&user=${encodeURIComponent(JSON.stringify(safeUser(user)))}`);
+    res.redirect(`/app.html?token=${token}`);
   } catch (err) {
     console.error('Google OAuth error:', err.message);
     res.redirect('/login.html?error=oauth_failed');

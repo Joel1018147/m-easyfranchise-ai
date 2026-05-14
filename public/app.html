@@ -2053,18 +2053,19 @@ async function init() {
   // Handle Google OAuth redirect with token in URL
   const urlParams = new URLSearchParams(window.location.search);
   const urlToken = urlParams.get('token');
-  const urlUser  = urlParams.get('user');
   if (urlToken) {
     localStorage.setItem('mef_token', urlToken);
     TOKEN = urlToken;
-    if (urlUser) {
-      try {
-        USER = JSON.parse(decodeURIComponent(urlUser));
-        localStorage.setItem('mef_user', JSON.stringify(USER));
-      } catch(e) {}
-    }
-    // Clean URL
+    // Clean URL immediately
     window.history.replaceState({}, document.title, '/app.html');
+    // Fetch user from API
+    try {
+      const r = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + urlToken } });
+      if (r.ok) {
+        USER = await r.json();
+        localStorage.setItem('mef_user', JSON.stringify(USER));
+      }
+    } catch(e) {}
   }
 
   // Restore theme
