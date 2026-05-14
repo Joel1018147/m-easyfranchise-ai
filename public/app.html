@@ -2076,9 +2076,23 @@ async function init() {
   }
 
   // Set user info
+  // Set user info immediately
   if (USER.name) {
     document.getElementById('user-nm').textContent = USER.name;
     document.getElementById('user-av').textContent = USER.name[0].toUpperCase();
+  } else {
+    // Fallback: fetch from API
+    try {
+      const r = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + TOKEN } });
+      if (r.ok) {
+        USER = await r.json();
+        localStorage.setItem('mef_user', JSON.stringify(USER));
+        document.getElementById('user-nm').textContent = USER.name;
+        document.getElementById('user-av').textContent = USER.name[0].toUpperCase();
+      }
+    } catch(e) {
+      document.getElementById('user-nm').textContent = 'User';
+    }
   }
 
   // Load brands first
