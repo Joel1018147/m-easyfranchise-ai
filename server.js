@@ -2,7 +2,7 @@
  * ╔══════════════════════════════════════════════════════════════╗
  * ║  M-EasyFranchise AI — Production Server v1.0               ║
  * ║  Franchise Management Platform — MODUS AI Ecosystem        ║
- * ║  PostgreSQL + Claude AI + JWT Auth                         ║
+ * ║  PostgreSQL + Groq AI (Llama) + JWT Auth                   ║
  * ╚══════════════════════════════════════════════════════════════╝
  */
 
@@ -85,7 +85,7 @@ async function requireAdmin(req, res, next) {
   next();
 }
 
-// ── Claude AI helper ───────────────────────────────────────────────────────────
+// ── Groq AI helper ────────────────────────────────────────────────────────────
 async function callGroq(systemPrompt, userMessage, maxTokens = 1000) {
   if (!GROQ_KEY) throw new Error('GROQ_API_KEY not configured');
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -844,7 +844,7 @@ app.get('/api/brands/:brandId/analytics', requireAuth, async (req, res) => {
 });
 
 // ════════════════════════════════════════════════════════════════════════
-//  AI ROUTES (Claude)
+//  AI ROUTES (Groq)
 // ════════════════════════════════════════════════════════════════════════
 
 // AI: Score a franchise application
